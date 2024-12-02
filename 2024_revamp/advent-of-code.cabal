@@ -62,8 +62,6 @@ common deps
     , base >=4.7 && <5
     , bytestring
     , containers
-    , matrix
-    , vector
     , split
     , search-algorithms
     , mtl
@@ -75,3 +73,9 @@ common warnings
     ghc-options: -Wall
 
 -- LEAVE THIS UNTOUCHED! `aoc-hs` will handle this after tis point.
+executable day-1
+  import: deps
+  hs-source-dirs:
+      solutions
+  main-is: day-1.hs
+
