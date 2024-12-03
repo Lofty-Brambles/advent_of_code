@@ -126,7 +126,7 @@ function run() {
         ;;
       --example|-e)
         args["runs_on"]="example"
-        shift 2
+        shift
         ;;
     esac
   done
