@@ -1,2 +1,4 @@
 **/input.txt
-**/.env
+.env
+dist-newstyle
+.stack-work/

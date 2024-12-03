@@ -36,14 +36,14 @@ function new() {
     esac
   done
 
-  if (( args["day"] < 0 && args["day"] > 25 )); then
+  if (( args["day"] < 0 || args["day"] > 25 )); then
     echo "Problems with the day argument: ${args["day"]}"
     exit 1
   fi
 
   echo "Creating a new Advent of Code template for day ${args["day"]}."
-  
-  local folder="day_${args["day"]}"
+
+  local folder="day_$(printf "%02d" "${args["day"]}")"
   mkdir -p "$folder"
 
   if [ -f "./.env" ]; then
@@ -94,6 +94,16 @@ main = do
 
   echo "$hs_tmpl" > "./$folder/solution.hs"
 
+  local cabal_tmpl="executable ${folder}
+    import:           deps
+    build-depends:    base ^>=4.17.2.1
+    hs-source-dirs:   ${folder}
+    main-is:          solution.hs
+    default-language: Haskell2010
+"
+
+  echo "$cabal_tmpl" >> "./x2024.cabal"
+
   echo "Created a new Advent of Code template for day ${args["day"]}."
 }
 
@@ -101,7 +111,7 @@ function run() {
   declare -A args=(
     ["day"]=$(date +%-d)
     ["part"]=""
-    ["run_on"]="input"
+    ["runs_on"]="input"
   )
 
   while [[ $# -gt 0 ]]; do
@@ -121,17 +131,17 @@ function run() {
     esac
   done
 
-  if (( args["day"] < 0 && args["day"] > 25 )); then
+  if (( args["day"] < 0 || args["day"] > 25 )); then
     echo "Problems with the day argument: ${args["day"]}"
     exit 1
   fi
 
-  if (( args["part"] != 1 || args["part"] != 2 )); then
+  if (( args["day"] < 0 || args["day"] > 2 )); then
     echo "Problems with the part argument: ${args["part"]}"
     exit 1
   fi
 
-  local folder="day_${args["day"]}"
+  local folder="day_$(printf "%02d" "${args["day"]}")"
   local input_file="./$folder/${args["runs_on"]}.txt"
 
   if [ ! -f $input_file ]; then
@@ -140,7 +150,7 @@ function run() {
   fi
 
   echo "Running solution for day ${args["day"]}, part ${args["part"]}"
-  runhaskell "./$folder/solution.hs" "${args["part"]}" "$input_file"
+  cabal run "$folder" -- "${args["part"]}" "$input_file"
 }
 
 if [[ " ${COMMANDS[*]} " =~ [[:space:]]$1[[:space:]] ]]; then

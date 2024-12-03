@@ -1,0 +1,46 @@
+cabal-version:      3.4
+name:               x2024
+version:            0.1.0.0
+synopsis:           Advent of code - 2024, solutions in haskell
+-- description:
+homepage:
+    https://github.com/Lofty-Brambles/advent_of_code/blob/main/2024
+
+license:            MIT
+license-file:       LICENSE
+author:             Lofty
+-- copyright:
+build-type:         Simple
+extra-doc-files:    README.md
+-- extra-source-files:
+
+common warnings
+    ghc-options: -Wall
+
+common deps
+    build-depends:
+        base >=4.7 && <5
+      , regex-tdfa
+
+-- after this aoc.sh will handle the additions, so add anything necessary before it
+executable day_01
+    import:           deps
+    build-depends:    base ^>=4.17.2.1
+    hs-source-dirs:   day_01
+    main-is:          solution.hs
+    default-language: Haskell2010
+
+executable day_02
+    import:           deps
+    build-depends:    base ^>=4.17.2.1
+    hs-source-dirs:   day_02
+    main-is:          solution.hs
+    default-language: Haskell2010
+
+executable day_03
+    import:           deps
+    build-depends:    base ^>=4.17.2.1
+    hs-source-dirs:   day_03
+    main-is:          solution.hs
+    default-language: Haskell2010
+
