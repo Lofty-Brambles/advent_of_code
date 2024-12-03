@@ -8,7 +8,7 @@ type Input = [[String]]
 type Solution = Int
 
 parser :: String -> Input
-parser x = x =~ "mul\\(([0-9]+),([0-9]+)\\)|don't\\(\\)|do\\(\\)" :: Input
+parser x = x =~ "mul\\(([0-9]{1,3}),([0-9]{1,3})\\)|don't\\(\\)|do\\(\\)" :: Input
 
 solve1 :: Input -> Solution
 solve1 x = sum $ map calc x
