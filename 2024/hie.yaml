@@ -1,0 +1,76 @@
+cradle:
+  cabal:
+    - path: "./day_01/solution.hs"
+      component: "x2024:exe:day_01"
+
+    - path: "./day_02/solution.hs"
+      component: "x2024:exe:day_02"
+
+    - path: "./day_03/solution.hs"
+      component: "x2024:exe:day_03"
+
+    - path: "./day_04/solution.hs"
+      component: "x2024:exe:day_04"
+
+    - path: "./day_05/solution.hs"
+      component: "x2024:exe:day_05"
+
+    - path: "./day_06/solution.hs"
+      component: "x2024:exe:day_06"
+
+    - path: "./day_07/solution.hs"
+      component: "x2024:exe:day_07"
+
+    - path: "./day_08/solution.hs"
+      component: "x2024:exe:day_08"
+
+    - path: "./day_09/solution.hs"
+      component: "x2024:exe:day_09"
+
+    - path: "./day_10/solution.hs"
+      component: "x2024:exe:day_10"
+
+    - path: "./day_11/solution.hs"
+      component: "x2024:exe:day_11"
+
+    - path: "./day_12/solution.hs"
+      component: "x2024:exe:day_12"
+
+    - path: "./day_13/solution.hs"
+      component: "x2024:exe:day_13"
+
+    - path: "./day_14/solution.hs"
+      component: "x2024:exe:day_14"
+
+    - path: "./day_15/solution.hs"
+      component: "x2024:exe:day_15"
+
+    - path: "./day_16/solution.hs"
+      component: "x2024:exe:day_16"
+
+    - path: "./day_17/solution.hs"
+      component: "x2024:exe:day_17"
+
+    - path: "./day_18/solution.hs"
+      component: "x2024:exe:day_18"
+
+    - path: "./day_19/solution.hs"
+      component: "x2024:exe:day_19"
+
+    - path: "./day_20/solution.hs"
+      component: "x2024:exe:day_20"
+
+    - path: "./day_21/solution.hs"
+      component: "x2024:exe:day_21"
+
+    - path: "./day_22/solution.hs"
+      component: "x2024:exe:day_22"
+
+    - path: "./day_23/solution.hs"
+      component: "x2024:exe:day_23"
+
+    - path: "./day_24/solution.hs"
+      component: "x2024:exe:day_24"
+
+    - path: "./day_25/solution.hs"
+      component: "x2024:exe:day_25"

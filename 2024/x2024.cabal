@@ -22,7 +22,7 @@ common deps
         TypeApplications
     build-depends:
         base >=4.7 && <5
-      , regex-tdfa
+      , regex-tdfa ^>= 1.3.2
 
 -- after this aoc.sh will handle the additions, so add anything necessary before it
 executable day_01

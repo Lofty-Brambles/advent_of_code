@@ -136,7 +136,7 @@ function run() {
     exit 1
   fi
 
-  if (( args["day"] < 0 || args["day"] > 2 )); then
+  if (( args["part"] < 0 || args["part"] > 2 )); then
     echo "Problems with the part argument: ${args["part"]}"
     exit 1
   fi
