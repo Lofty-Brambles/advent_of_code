@@ -38,8 +38,8 @@ solve2 = solveBackwards [unAdd, unMultiply, unCatenate]
 unCatenate :: Operation
 unCatenate x y = [d | m == x]
   where
-    pow = length . takeWhile (< x) $ iterate (* 10) 1
     (d, m) = y `divMod` (10 ^ pow)
+    pow = length . takeWhile (<= x) $ iterate (* 10) 1
 
 main :: IO ()
 main = do
