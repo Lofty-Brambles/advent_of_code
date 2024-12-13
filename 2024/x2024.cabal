@@ -21,6 +21,7 @@ common deps
     default-extensions:
         TypeApplications
       , TupleSections
+      , NumericUnderscores
     build-depends:
         base >=4.7 && <5
       , regex-tdfa ^>= 1.3.2
@@ -110,6 +111,13 @@ executable day_12
     import:           deps
     build-depends:    base ^>=4.17.2.1
     hs-source-dirs:   day_12
+    main-is:          solution.hs
+    default-language: Haskell2010
+
+executable day_13
+    import:           deps
+    build-depends:    base ^>=4.17.2.1
+    hs-source-dirs:   day_13
     main-is:          solution.hs
     default-language: Haskell2010
 
