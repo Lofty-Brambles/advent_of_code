@@ -3,6 +3,7 @@ module Main where
 import qualified Data.IntMap as I
 import qualified Data.List as L
 import qualified Data.Map as M
+import qualified Data.Maybe as F
 import qualified Data.Set as S
 import System.Environment (getArgs)
 
@@ -36,7 +37,7 @@ parser x = Maze{walls = S.fromList filterMaze, start, end, limits}
   where
     maze = [((x, y), c) | (y, l) <- zip [0 ..] $ lines x, (x, c) <- zip [0 ..] l]
     (filterMaze, start, end) = foldr finder ([], (-1, -1), (-1, -1)) maze
-    limits = (length $ lines x, length . head $ lines x)
+    limits = (length . head $ lines x, length $ lines x)
     finder (coord, ch) old@(m, s, e)
       | ch == '#' = (coord : m, s, e)
       | ch == 'S' = (m, coord, e)
@@ -44,16 +45,16 @@ parser x = Maze{walls = S.fromList filterMaze, start, end, limits}
       | otherwise = old
 
 solve1 :: Input -> Solution
-solve1 maze = minimum [delta graph (end maze, d) | d <- [N, E, S, W]]
+solve1 maze = minimum [delta final (end maze, d) | d <- [N, E, S, W]]
   where
-    graph = dijkstra (mkGraph maze) (start maze, E)
+    final = dijkstra (mkGraph maze) (start maze, E)
 
 mkGraph :: Maze -> Graph
 mkGraph maze =
   Graph
     { vertices = [(l, d) | l <- S.toList locations, d <- [N, E, S, W]]
     , neighbours = \r -> [x | (x, _) <- move r, fst x `S.member` locations]
-    , score = \r1 r2 -> head [c | (r2', c) <- move r1, r2 == r2']
+    , score = \r1 r2 -> snd . F.fromJust . L.find ((== r2) . fst) $ move r1
     }
   where
     locations = S.fromList [(x, y) | x <- gLst fst, y <- gLst snd, check (x, y)]
@@ -69,7 +70,7 @@ dijkstra graph start =
       , pqueue = I.singleton 0 [start]
       }
   where
-    keepLooping x = case minView $ pqueue x of
+    keepLooping x = case pop $ pqueue x of
       Nothing -> x
       Just (u, pq) -> if maxBound > delta x u then keepLooping x' else x
         where
@@ -91,7 +92,7 @@ move :: Reindeer -> [(Reindeer, Int)]
 move (l, d) = ((straight l d, d), 1) : map turns [(+), (-)]
   where
     turns t = ((l, turn t d), 1000)
-    turn way dir = toEnum (way 1 (fromEnum dir) `mod` 4)
+    turn way dir = toEnum . (`mod` 4) $ fromEnum dir `way` 1
     straight (x, y) d = case d of
       N -> (x, y - 1)
       S -> (x, y + 1)
@@ -100,8 +101,9 @@ move (l, d) = ((straight l d, d), 1) : map turns [(+), (-)]
 
 type PQueue a = I.IntMap [a]
 
-minView :: PQueue a -> Maybe (a, PQueue a)
-minView pq = case I.lookupMin pq of
+pop :: PQueue a -> Maybe (a, PQueue a)
+pop pq = case I.lookupMin pq of
+  Just (_, []) -> Nothing
   Just (_, x : xs) -> Just (x, pq')
     where
       pq' = if null xs then I.deleteMin pq else I.updateMin getxs pq
@@ -112,7 +114,14 @@ addWithPriority :: a -> Int -> PQueue a -> PQueue a
 addWithPriority x p = I.insertWith (++) p [x]
 
 solve2 :: Input -> Solution
-solve2 = error "Part 2 Not implemented"
+solve2 maze = S.size . S.unions . map S.fromList $ generatePaths final (end maze, N)
+  where
+    final = dijkstra (mkGraph maze) (start maze, E)
+
+generatePaths :: DijkData -> Reindeer -> [[Coords]]
+generatePaths x pos = case M.lookup pos $ prev x of
+  Just xs' -> [fst pos : path | x' <- xs', path <- generatePaths x x']
+  Nothing -> [[fst pos]]
 
 main :: IO ()
 main = do
