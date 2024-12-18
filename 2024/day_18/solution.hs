@@ -90,14 +90,14 @@ addWithPriority :: a -> Int -> PQueue a -> PQueue a
 addWithPriority x p = I.insertWith (++) p [x]
 
 solve2 :: Input -> Solution2
-solve2 maze = binarySearch 13 (length lst + 1)
+solve2 maze = binarySearch 1025 (length lst + 1)
   where
     lst = corrupted maze (takeable maze)
     binarySearch low high
       | low >= high = lst !! min low high
       | otherwise = case solve1 maze{takeable = mid} of
           Nothing -> binarySearch low (mid - 1)
-          Just _ -> binarySearch mid high
+          Just _ -> binarySearch (mid + 1) high
       where
         mid = (low + high) `div` 2
 
