@@ -35,27 +35,20 @@ type Solution = Int
 parser :: String -> Input
 parser x = (board, concat splitMoves)
   where
-    (rawBoard, splitMoves) = break null $ lines x
+    (rb, splitMoves) = break null $ lines x
     markedBoard =
-      [ ((x, y), c)
-      | (y, line) <- zip [0 ..] rawBoard
-      , (x, c) <- zip [0 ..] line
-      , c /= '.'
-      ]
+      [((x, y), c) | (y, l) <- zip [0 ..] rb, (x, c) <- zip [0 ..] l, c /= '.']
     board =
       Board
         { look = M.fromList markedBoard
         , bot = fst . F.fromJust $ L.find ((== '@') . snd) markedBoard
         }
 
--- solve1 :: Input -> Solution
--- solve1 = sum . F.mapMaybe mayGetValue . M.toList . look . moveAll
-
-solve1 :: Input -> Board
-solve1 = moveAll
+solve1 :: Input -> Solution
+solve1 = sum . F.mapMaybe mayGetValue . M.toList . look . moveAll
 
 mayGetValue :: (Coords, Char) -> Maybe Int
-mayGetValue ((x, y), 'O') = Just (100 * x + y)
+mayGetValue ((x, y), 'O') = Just (100 * y + x)
 mayGetValue (_, _) = Nothing
 
 moveAll :: Input -> Board
@@ -63,20 +56,21 @@ moveAll (board, shifts) = foldl move board shifts
 
 move :: Board -> Char -> Board
 move board ch =
-  if possible == (-1, -1)
-    then board
-    else traceShowId (board{look = modify $ look board, bot = nextBot})
+  if possible == (-1, -1) then board else newBoard
   where
+    newBoard = board{look = modify $ look board, bot = nextBot}
     modify = M.delete (bot board) . M.insert nextBot '@' . moveLoad
     moveLoad = if nextBot /= possible then M.insert possible 'O' else id
+    possible = movables board ch $ bot board
     nextBot = shift ch $ bot board
-    possible = traceShowId $ movables $ bot board
-    movables pointer = case look board M.!? next of
-      Just 'O' -> movables next
-      Just '#' -> (-1, -1)
-      Nothing -> pointer
-      where
-        next = traceShowId $ shift ch pointer
+
+movables :: Board -> Char -> Coords -> Coords
+movables board ch pointer = case look board M.!? next of
+  Just 'O' -> movables board ch next
+  Just '#' -> (-1, -1)
+  Nothing -> next
+  where
+    next = shift ch pointer
 
 shift :: Char -> Coords -> Coords
 shift '^' = C.second pred
