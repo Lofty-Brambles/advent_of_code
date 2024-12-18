@@ -97,7 +97,7 @@ solve2 maze = binarySearch 13 (length lst + 1)
       | low >= high = lst !! min low high
       | otherwise = case solve1 maze{takeable = mid} of
           Nothing -> binarySearch low (mid - 1)
-          Just _ -> binarySearch mid high
+          Just _ -> binarySearch (mid+1) high
       where
         mid = (low + high) `div` 2
 
