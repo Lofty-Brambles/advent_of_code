@@ -31,7 +31,7 @@ parser x = Maze{corrupted = (`take` corrupted'), limits, takeable}
   where
     corrupted' = take takeable . map wrapTuple $ lines x
     wrapTuple t = read $ "(" ++ t ++ ")"
-    limits = 6 -- 70 --
+    limits = 70 -- 6 --
     takeable = length $ lines x -- 1024 -- 12 --
 
 solve1 :: Input -> Solution1
