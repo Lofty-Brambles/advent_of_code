@@ -24,7 +24,7 @@ parser input = (maze, costs maze start, costs maze end)
     costs m t = getCosts m (M.singleton (t m) 0) (M.singleton (t m) 0)
     maze = Maze{walls = S.fromList walls, start = start', end = end'}
     (walls, start', end') = foldr finder ([], (-1, -1), (-1, -1)) coordList
-    coordList = [((x, y), c) | (y, l) <- zip [0 ..] rows, (x, c) <- zip [0 ..] l]
+    coordList = [((y, x), c) | (y, l) <- zip [0 ..] rows, (x, c) <- zip [0 ..] l]
     rows = lines input
     finder (coord, ch) old@(m, s, e)
       | ch == '#' = (coord : m, s, e)
@@ -53,8 +53,8 @@ add (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
 uncurry3 :: (a -> b -> c -> d) -> (a, b, c) -> d
 uncurry3 f (a, b, c) = f a b c
 
-solve1 :: Input -> Input
-solve1 x = x -- = uncurry3 $ cheat 100 2
+solve1 :: Input -> Solution
+solve1 = uncurry3 $ cheat 100 2
 
 cheat :: Int -> Int -> Maze -> MazeCosts -> MazeCosts -> Int
 cheat threshold l maze costS costE =
@@ -80,7 +80,7 @@ contCosts l maze costS costE x = F.mapMaybe contCosts numbers
       ]
 
 solve2 :: Input -> Solution
-solve2 = error "Part 2 Not implemented"
+solve2 = uncurry3 $ cheat 100 20
 
 main :: IO ()
 main = do
