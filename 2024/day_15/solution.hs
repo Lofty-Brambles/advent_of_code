@@ -1,13 +1,12 @@
-{-# LANGUAGE InstanceSigs #-}
-
 module Main where
 
-import qualified Control.Arrow as C
+import qualified Control.Arrow as CA
+import qualified Data.Char as C
 import qualified Data.List as L
 import qualified Data.Map as M
-import qualified Data.Maybe as F
-import Debug.Trace (traceShowId)
+import Data.Maybe (fromJust)
 import System.Environment (getArgs)
+import Debug.Trace (traceShowId)
 
 type Coords = (Int, Int) -- ( y, x )
 data Board = Board
@@ -15,11 +14,14 @@ data Board = Board
   , bot :: Coords
   }
 
+type Input = (Board, String)
+
+type Solution = Int
+
 instance Show Board where
-  show :: Board -> String
   show board = L.intercalate "\n" grid ++ "\n\nBot @ " ++ botPlace
     where
-      grid = L.transpose . chunks (fst ends + 1) . map snd $ M.toAscList merged
+      grid = chunks (fst ends + 1) . map snd $ M.toAscList merged
       merged = foldr (uncurry M.insert) empty elements
       empty = M.fromList $ [((x, y), '.') | x <- [0 .. fst ends], y <- [0 .. snd ends]]
       ends = fst $ head elements
@@ -28,55 +30,49 @@ instance Show Board where
       chunks _ [] = []
       chunks n x = (\(ys, zs) -> ys : chunks n zs) $ splitAt n x
 
-type Input = (Board, String)
-
-type Solution = Int
-
 parser :: String -> Input
 parser x = (board, concat splitMoves)
   where
     (rb, splitMoves) = break null $ lines x
     markedBoard =
-      [((x, y), c) | (y, l) <- zip [0 ..] rb, (x, c) <- zip [0 ..] l, c /= '.']
+      [((y, x), c) | (y, l) <- zip [0 ..] rb, (x, c) <- zip [0 ..] l, c /= '.']
     board =
       Board
         { look = M.fromList markedBoard
-        , bot = fst . F.fromJust $ L.find ((== '@') . snd) markedBoard
+        , bot = fst . fromJust $ L.find ((== '@') . snd) markedBoard
         }
 
 solve1 :: Input -> Solution
-solve1 = sum . F.mapMaybe mayGetValue . M.toList . look . moveAll
+solve1 = sumUp . uncurry (L.foldl' pushBot)
 
-mayGetValue :: (Coords, Char) -> Maybe Int
-mayGetValue ((x, y), 'O') = Just (100 * y + x)
-mayGetValue (_, _) = Nothing
-
-moveAll :: Input -> Board
-moveAll (board, shifts) = foldl move board shifts
-
-move :: Board -> Char -> Board
-move board ch =
-  if possible == (-1, -1) then board else newBoard
+sumUp :: Board -> Int
+sumUp b = M.foldrWithKey' recurAdd 0 $ look b
   where
-    newBoard = board{look = modify $ look board, bot = nextBot}
-    modify = M.delete (bot board) . M.insert nextBot '@' . moveLoad
-    moveLoad = if nextBot /= possible then M.insert possible 'O' else id
-    possible = movables board ch $ bot board
-    nextBot = shift ch $ bot board
+    recurAdd (x, y) 'O' t = 100 * x + y + t
+    recurAdd _ _ t = t
 
-movables :: Board -> Char -> Coords -> Coords
-movables board ch pointer = case look board M.!? next of
-  Just 'O' -> movables board ch next
-  Just '#' -> (-1, -1)
-  Nothing -> next
+pushBot :: Board -> Char -> Board
+pushBot b ch = case traceShowId $ pushObjects b ch next of
+  Just b' -> b'{bot = next}
+  Nothing -> b
   where
-    next = shift ch pointer
+    next = shift ch $ bot b
 
 shift :: Char -> Coords -> Coords
-shift '^' = C.second pred
-shift 'v' = C.second succ
-shift '<' = C.first pred
-shift _ = C.first succ
+shift '^' = CA.first pred
+shift 'v' = CA.first succ
+shift '<' = CA.second pred
+shift _ = CA.second succ
+
+pushObjects :: Board -> Char -> Coords -> Maybe Board
+pushObjects b ch p = case M.lookup p $ look b of
+  Nothing -> Just b
+  Just '#' -> Nothing
+  Just 'O' -> do
+    let p' = shift ch p
+    b' <- pushObjects b ch p'
+    return b'{look = M.insert p' 'O' . M.delete p . look $ b'}
+  Just _ -> Nothing
 
 solve2 :: Input -> Solution
 solve2 = error "Part 2 Not implemented"
