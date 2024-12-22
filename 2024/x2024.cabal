@@ -178,3 +178,10 @@ executable day_21
     main-is:          solution.hs
     default-language: Haskell2010
 
+executable day_22
+    import:           deps
+    build-depends:    base ^>=4.17.2.1
+    hs-source-dirs:   day_22
+    main-is:          solution.hs
+    default-language: Haskell2010
+

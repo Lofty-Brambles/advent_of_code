@@ -5,7 +5,6 @@ import qualified Data.List as L
 import qualified Data.Map as M
 import qualified Data.Maybe as F
 import System.Environment (getArgs)
-import Text.Regex.TDFA.IntArrTrieSet (TrieSet (next))
 
 newtype TrieNode = TrieNode (M.Map Char TrieNode) deriving (Show)
 
