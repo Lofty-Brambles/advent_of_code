@@ -1,11 +1,8 @@
 module Main where
 
-import qualified Control.Arrow as CA
-import qualified Data.Char as C
 import qualified Data.List as L
 import qualified Data.Map as M
 import Data.Maybe (fromJust)
-import Debug.Trace (traceShowId)
 import System.Environment (getArgs)
 
 type Coords = (Int, Int) -- ( y, x )
@@ -23,21 +20,41 @@ parser x = (board, concat splitMoves)
   where
     (rb, splitMoves) = break null $ lines x
     markedBoard =
-      [((y, x), c) | (y, l) <- zip [0 ..] rb, (x, c) <- zip [0 ..] l, c /= '.']
+      [((y, x), c) | (y, l) <- zip [0 ..] rb, (x, c) <- zip [0 ..] l]
     board =
       Board
-        { look = M.fromList markedBoard
+        { look = M.fromList $ filter (\(_, c) -> c `elem` "#O[]") markedBoard
         , bot = fst . fromJust $ L.find ((== '@') . snd) markedBoard
         }
 
-solve1 :: Input -> Solution
-solve1 x = 0
+sumUp :: Board -> Int
+sumUp = M.foldrWithKey' stack 0 . look
+  where
+    stack (x, y) 'O' t = t + 100 * x + y
+    stack _ _ t = t
+
+moveBot :: Board -> Char -> Board
+moveBot b ch = case move b ch $ shift ch $ bot b of
+  Just b' -> b'{bot = shift ch $ bot b}
+  Nothing -> b
 
 shift :: Char -> Coords -> Coords
-shift '^' = CA.first pred
-shift 'v' = CA.first succ
-shift '<' = CA.second pred
-shift _ = CA.second succ
+shift '^' (x, y) = (y - 1, x)
+shift 'v' (x, y) = (y + 1, x)
+shift '<' (x, y) = (y, x - 1)
+shift '>' (x, y) = (y, x + 1)
+
+move :: Board -> Char -> Coords -> Maybe Board
+move b ch l = case M.lookup l $ look b of
+  Nothing -> Just b
+  Just '#' -> Nothing
+  Just 'O' -> do
+    let l' = shift ch l
+    b' <- move b ch l'
+    return b'{look = M.insert l' 'O' $ M.delete l $ look b'}
+
+solve1 :: Input -> Solution
+solve1 = sumUp . uncurry (L.foldl' moveBot)
 
 solve2 :: Input -> Solution
 solve2 = error "Part 2 Not implemented"
