@@ -22,54 +22,33 @@ addToTrie :: String -> TrieNode -> TrieNode
 addToTrie [] (TrieNode t) = TrieNode $ M.insert '.' (TrieNode M.empty) t
 addToTrie (x : xs) (TrieNode t) = TrieNode $ M.alter advance x t
   where
-    insertion p = Just $ addToTrie xs p
     advance Nothing = insertion (TrieNode M.empty)
     advance (Just t') = insertion t'
+    insertion p = Just $ addToTrie xs p
+
+countM :: TrieNode -> String -> Int
+countM t towel = memo M.! towel
+  where
+    memo = M.fromList [(xes, count xes) | xes <- L.tails towel]
+    count subTowel
+      | null subTowel = 1
+      | otherwise = sum [memo M.! drop i subTowel | i <- nextIndices t subTowel]
+
+nextIndices :: TrieNode -> String -> [Int]
+nextIndices = parse 0
+  where
+    ends (TrieNode t) = '.' `M.member` t
+    parse n t [] = [n | ends t]
+    parse n t@(TrieNode b) (x : xs) =
+      [n | ends t] ++ case M.lookup x b of
+        Nothing -> []
+        Just t' -> parse (n + 1) t' xs
 
 solve1 :: Input -> Solution
-solve1 (trie, towels) = length $ filter (matchStar trie) towels
-
-matchStar :: TrieNode -> String -> Bool
-matchStar trie xs =
-  any terminates (matchNFA trie xs [trie])
-
--- matching in a non-deterministic automaton;
--- the states are lists of tries
-matchNFA :: TrieNode -> String -> [TrieNode] -> [TrieNode]
-matchNFA start xs tries = go xs tries
-  where
-    go [] ts = ts
-    go (x : xs) ts =
-      let ts' = submatches x ts
-       in go xs ([start | any terminates ts'] ++ ts')
-
-submatches :: Char -> [TrieNode] -> [TrieNode]
-submatches x tries =
-  F.catMaybes [M.lookup x branches | TrieNode branches <- tries]
-
-counter :: TrieNode -> String -> Int
-counter t pattern = memo M.! pattern
-  where
-    memo = M.fromList [(x, count x) | x <- L.tails pattern]
-    count subPat
-      | null subPat = 1
-      | otherwise = sum [memo M.! drop i subPat | i <- postPrefix t pattern]
-
-postPrefix :: TrieNode -> String -> [Int]
-postPrefix = huntPrefix 0
-  where
-    huntPrefix n t' [] = [n | terminates t']
-    huntPrefix n t'@(TrieNode t) (x : xs) = [n | terminates t'] ++ next
-      where
-        next = case M.lookup x t of
-          Nothing -> []
-          Just nextT -> huntPrefix (n + 1) nextT xs
-
-terminates :: TrieNode -> Bool
-terminates (TrieNode t) = '.' `M.member` t
+solve1 (trie, towels) = length $ filter ((> 0) . countM trie) towels
 
 solve2 :: Input -> Solution
-solve2 (trie, towels) = sum . map (counter trie) $ towels
+solve2 (trie, towels) = sum $ map (countM trie) towels
 
 main :: IO ()
 main = do
